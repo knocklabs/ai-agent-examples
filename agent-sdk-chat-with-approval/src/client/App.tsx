@@ -4,54 +4,150 @@ import Notifications from "./Notifications";
 import { KnockProvider } from "@knocklabs/react";
 import { KnockFeedProvider } from "@knocklabs/react";
 
+import {
+  PromptInput,
+  PromptInputTextarea,
+  PromptInputActions,
+  PromptInputAction,
+} from "../components/ui/prompt-input";
+import { ArrowUp, Square } from "lucide-react";
+import { ChangeEvent, useRef } from "react";
+
+import { Button } from "../components/ui/button";
+import { ChatContainer } from "../components/ui/chat-container";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+} from "../components/ui/message";
+import { Markdown } from "../components/ui/markdown";
+import { PromptSuggestion } from "../components/ui/prompt-suggestion";
+
+const KNOCK_USER_ID = "admin_user_1";
+
 function ChatInterface() {
   // Connect to the agent
   const agent = useAgent({
     agent: "AIAgent",
   });
 
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
   // Set up the chat interaction
-  const { messages, input, handleInputChange, handleSubmit, clearHistory } =
-    useAgentChat({
-      agent,
-      maxSteps: 5,
-    });
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    clearHistory,
+    isLoading,
+  } = useAgentChat({
+    agent,
+    maxSteps: 5,
+  });
 
   return (
     <KnockProvider
-      apiKey={"pk_test_ahHZtGukq93uynfxDIIwENgKybrj1qnKqaK8zQSAXz4"}
-      userId="admin_user_1"
+      apiKey={import.meta.env.VITE_KNOCK_PUBLIC_KEY}
+      userId={KNOCK_USER_ID}
     >
-      <KnockFeedProvider feedId={"63f9d5d6-0ec7-46fc-aaf8-a568b981bfc4"}>
+      <KnockFeedProvider feedId={import.meta.env.VITE_KNOCK_FEED_ID}>
         <div className="chat-interface">
-          <Notifications />
+          <div className="flex p-2 flex-row items-center gap-2 border-b">
+            <span className="text-lg font-bold">AI Assistant</span>
 
-          <div className="message-flow">
-            {messages.map((message) => (
-              <div key={message.id} className="message">
-                <div className="role">{message.role}</div>
-                <div className="content">{message.content}</div>
-              </div>
-            ))}
+            <Button variant="outline" size="sm" onClick={clearHistory}>
+              Clear chat
+            </Button>
+            <div className="ml-auto">
+              <Notifications />
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="input-area">
-            <input
-              value={input}
-              onChange={handleInputChange}
-              placeholder="Type your message..."
-              className="message-input"
-              style={{ width: "100%", height: "30px", padding: "10px" }}
-            />
+          <div className="flex h-[calc(100vh-70px)] w-[700px] flex-col overflow-hidden mx-auto">
+            <ChatContainer
+              className="flex-1 space-y-4 p-4"
+              autoScroll
+              ref={chatContainerRef}
+            >
+              {messages.map((message) => {
+                const isAssistant = message.role === "assistant";
 
-            <button type="submit" className="send-button">
-              Go
-            </button>
-          </form>
+                return (
+                  <Message
+                    key={message.id}
+                    className={
+                      message.role === "user" ? "justify-end" : "justify-start"
+                    }
+                  >
+                    {isAssistant && (
+                      <MessageAvatar src="" alt="AI Assistant" fallback="AI" />
+                    )}
+                    <div className="max-w-[85%] flex-1 sm:max-w-[75%]">
+                      {isAssistant ? (
+                        <div className="bg-secondary text-foreground prose rounded-lg p-2">
+                          <Markdown>{message.content}</Markdown>
+                        </div>
+                      ) : (
+                        <MessageContent className="bg-primary text-primary-foreground">
+                          {message.content}
+                        </MessageContent>
+                      )}
+                    </div>
+                  </Message>
+                );
+              })}
+            </ChatContainer>
 
-          <button onClick={clearHistory} className="clear-button">
-            Clear Chat
-          </button>
+            <form onSubmit={handleSubmit} className="input-area">
+              <div className="flex flex-wrap gap-2 my-3">
+                <PromptSuggestion
+                  onClick={() =>
+                    handleInputChange({
+                      target: {
+                        value: `Add ${Math.floor(
+                          Math.random() * 1000
+                        )} + ${Math.floor(Math.random() * 1000)}`,
+                      },
+                    } as ChangeEvent<HTMLInputElement>)
+                  }
+                >
+                  Add two values together
+                </PromptSuggestion>
+              </div>
+              <PromptInput
+                value={input}
+                onValueChange={(e) =>
+                  handleInputChange({
+                    target: { value: e },
+                  } as ChangeEvent<HTMLInputElement>)
+                }
+                isLoading={isLoading}
+                onSubmit={handleSubmit}
+                className="w-full max-w-(--breakpoint-md)"
+              >
+                <PromptInputTextarea placeholder="Ask me anything..." />
+                <PromptInputActions className="justify-end pt-2">
+                  <PromptInputAction
+                    tooltip={isLoading ? "Stop generation" : "Send message"}
+                  >
+                    <Button
+                      variant="default"
+                      size="icon"
+                      className="h-8 w-8 rounded-full"
+                      onClick={handleSubmit}
+                    >
+                      {isLoading ? (
+                        <Square className="size-5 fill-current" />
+                      ) : (
+                        <ArrowUp className="size-5" />
+                      )}
+                    </Button>
+                  </PromptInputAction>
+                </PromptInputActions>
+              </PromptInput>
+            </form>
+          </div>
         </div>
       </KnockFeedProvider>
     </KnockProvider>
