@@ -44,7 +44,7 @@ function Chat({
   return (
     <div className="chat-interface">
       <div className="flex p-2 flex-row items-center gap-2 border-b">
-        <img src="/knock-logo.png" alt="Knock logo" className="w-16" />
+        <img src="/slope-logo.png" alt="Slope logo" className="w-20" />
 
         <Button
           variant="outline"
@@ -100,7 +100,7 @@ function Chat({
               size="sm"
               onClick={() => setInput(`Can you issue me a new card`)}
             >
-              Issue a new card
+              ✅ Issue a new card
             </PromptSuggestion>
             <PromptSuggestion
               variant="outline"
@@ -128,7 +128,7 @@ function Chat({
             <PromptSuggestion
               variant="outline"
               size="sm"
-              onClick={() => setInput(`How does this work?`)}
+              onClick={() => setInput(`How does this demo application work?`)}
             >
               How does this work?
             </PromptSuggestion>

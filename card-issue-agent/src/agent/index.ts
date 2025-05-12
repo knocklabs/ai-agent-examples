@@ -6,7 +6,7 @@ import { initializeToolkit } from "./tools";
 import { responseToAssistantMessage } from "./helper";
 import app from "./app";
 import { IssuedCard } from "./api";
-import { ABOUT, HOW_DOES_THIS_WORK, WHAT_IS_KNOCK } from "./constants";
+import { ABOUT, WHAT_IS_KNOCK } from "./constants";
 
 export type Env = {
   KNOCK_SERVICE_TOKEN: string;
@@ -39,9 +39,7 @@ export class AIAgent extends AIChatAgent<Env, AgentState> {
             
             When you're asked about what this application is, you should respond with: ${ABOUT}.
             
-            When you're asked about what Knock is, you should respond with: ${WHAT_IS_KNOCK}.
-            
-            ${HOW_DOES_THIS_WORK}`,
+            When you're asked about what Knock is, you should respond with: ${WHAT_IS_KNOCK}.`,
             messages: this.messages,
             onFinish, // call onFinish so that messages get saved
             tools: tools,
@@ -92,7 +90,7 @@ export class AIAgent extends AIChatAgent<Env, AgentState> {
       return { error: "No result" };
     }
 
-    const toolCallId = result.toolCall.extra?.toolCallId as string;
+    const toolCallId = result.toolCall.id;
 
     // Guard against duplicate tool call requests
     if (this.state.toolCalls[toolCallId] !== "requested") {

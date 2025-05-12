@@ -6,6 +6,8 @@ It's built with [Knock](https://knock.app/agent-toolkit), [Cloudflare Agents](ht
 
 export const WHAT_IS_KNOCK = `
 [Knock](https://knock.app) is a developer tool for powering customer messaging. It's built as a set of primitives that you can use to power any kind of customer cross-channel messaging flow for your product or AI agent.
+
+You can sign up for a free Knock account at [knock.app](https://knock.app).
 `;
 
 export const HOW_DOES_THIS_WORK = `
